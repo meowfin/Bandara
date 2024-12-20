@@ -36,6 +36,16 @@ struct Pesawat{
     KondisiSistemKeamanan hidrolik;
 };
 
+void MasukinJumlahPenumpang(int JumlahPenumpangTiapHari[]) {
+    cout << "Masukkan jumlah penumpang di bandara untuk setiap hari berikut." << endl;
+    string namaHari[] = {"Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"};
+
+    for (int i = Senin; i <= Minggu; i++) {
+        cout << namaHari[i] << ": ";
+        cin >> JumlahPenumpangTiapHari[i];
+}
+}
+
 void MasukinKeadaanTiapPesawat(vector<Pesawat> *tiapPesawat){
     /* Bagian Afif
     Masukin hari terbang untuk setiap pesawat (pake enum yh)
@@ -314,10 +324,11 @@ void cekKeadaanTiapHari(int JumlahPenumpangTiapHari[], const vector<Pesawat> tia
    {
     totalKapasitasHarian[Airplane.hariTerbang] += Airplane.jumlahMaksPenumpang;
    }
-   
+   cout << " " << endl;
+   cout << "Kondisi Bandara: " << endl;
    for (int i = 0; i < 7; i++)
    {
-    cout << namaHari[i] << ":" << endl;
+    cout << namaHari[i] << ": " ;
     if (JumlahPenumpangTiapHari[i] == 0 && totalKapasitasHarian[i] == 0){
         cout << "Tidak ada penumpang & pesawat hari ini!" << endl;
     } else if (totalKapasitasHarian[i] == 0){
@@ -325,7 +336,7 @@ void cekKeadaanTiapHari(int JumlahPenumpangTiapHari[], const vector<Pesawat> tia
     } else if (JumlahPenumpangTiapHari[i] == 0){
         cout << "Tidak ada penumpang hari ini!" << endl;
     } else if (totalKapasitasHarian[i] < JumlahPenumpangTiapHari[i]){
-        cout << "Kebanyakan!" << JumlahPenumpangTiapHari[i] - totalKapasitasHarian[i] << "orang tidak bisa masuk karena semua pesawat penuh!" << endl;
+        cout << "Kebanyakan! " << JumlahPenumpangTiapHari[i] - totalKapasitasHarian[i] << " orang tidak bisa masuk karena semua pesawat penuh!" << endl;
     } else if (totalKapasitasHarian[i] == JumlahPenumpangTiapHari[i]){
         cout << "Pas!" << endl;
     } else if (totalKapasitasHarian[i] > JumlahPenumpangTiapHari[i]) {
@@ -334,15 +345,11 @@ void cekKeadaanTiapHari(int JumlahPenumpangTiapHari[], const vector<Pesawat> tia
    }
    }
 
-   
-
-
-
-
 
 int main(){
     int JumlahPenumpangTiapHari[7];
     vector<Pesawat> tiapPesawat;
+    MasukinJumlahPenumpang(JumlahPenumpangTiapHari);
     MasukinKeadaanTiapPesawat(&tiapPesawat);
     TampilkanInformasiPesawat(tiapPesawat);
     CekKeamananPesawat(tiapPesawat);
