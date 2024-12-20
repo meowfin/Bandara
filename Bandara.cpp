@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-
+#include <ctime>
 using namespace std;
 
 enum Hari{
@@ -60,6 +60,35 @@ void cekKeadaanTiapHari(int JumlahPenumpangTiapHari[], vector<Pesawat> tiapPesaw
     */
 }
 
+void outputKeadaan(){
+    cout << "0: Berfungsi\n"
+         << "1: Tidak Berfungsi\n"
+         << "2: Perlu Pemeriksaan\n";
+}
+
+string keadaan(KondisiSistemKeamanan kondisiAirplane){
+    switch (kondisiAirplane){
+        case (Berfungsi):
+            return "Berfungsi";
+            break;
+        case (TidakBerfungsi):
+            return "Tidak Berfungsi";
+            break;
+        case (PerluPemeriksaan):
+            return "Perlu Pemeriksaan";
+            break;
+        default:
+            return "Error";
+            break;
+    }
+}
+
+void delay(int milliseconds) {
+    clock_t start_time = clock();  
+    while (clock() < start_time + milliseconds * (CLOCKS_PER_SEC / 1000)) {
+    }
+}
+
 void MasukinKeadaanTiapPesawat(vector<Pesawat> *tiapPesawat){
     int jumlahPesawat;
 
@@ -99,58 +128,55 @@ void MasukinKeadaanTiapPesawat(vector<Pesawat> *tiapPesawat){
         cout << "\nBerapa kapasitas tangki bensin (liter): ";
         cin >> Airplane.kapasitasBensin;
 
-        cout << "Berapa jumlah bensin yang terisi (liter): ";
+        cout << "Berapa jumlah bensin yang akan diisi (liter): ";
         cin >> Airplane.bensinTerisi;
 
+        cout << "Sedang mengisi bensin"; delay(500);
+        cout << "."; delay(500);
+        cout << "."; delay(500);
+        cout << ".\n";
         if (Airplane.bensinTerisi > Airplane.kapasitasBensin){
-            cout << "Jumlah bensin yang terisi melebihi kapasitas! Tolong sesuaikan!!!";
+            cout << "Jumlah bensin yang terisi melebihi kapasitas!\nBensin yang tersisa akan dikurangi"; delay(2000);
+            cout << "."; delay(1000);
+            cout << "."; delay(1000);
+            cout << ".\n"; 
             Airplane.bensinTerisi = Airplane.kapasitasBensin;
         }
+        cout << "Tangki bensin sudah terisi dengan baik!" << endl;
+
 
         cout << "\nKondisi Pesawat\n";
-        cout << "0: Baik\n"
-             << "1: Perlu Perawatan\n"
-             << "2: Rusak\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi pesawat: ";
         cin >> kondisi;
         Airplane.kondisi = (KondisiPesawat)kondisi;
 
         cout << "\nKondisi GPS\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi GPS pesawat: ";
         cin >> kondisiGPS;
         Airplane.gps = (KondisiSistemKeamanan)kondisiGPS;
 
         cout << "\nKondisi Sistem Kebakaran:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi sistem kebakaran pada pesawat: ";
         cin >> kondisiSistemKebakaran;
         Airplane.sistemKebakaran = (KondisiSistemKeamanan)kondisiSistemKebakaran;
 
         cout << "\nKondisi Layar Kemudi Pesawat:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi layar kemudi pesawat: ";
         cin >> kondisiLayar;
         Airplane.layar = (KondisiSistemKeamanan)kondisiLayar;
 
         cout << "\nKondisi Lampu Peringatan:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi lampu peringatan pada pesawat: ";
         cin >> kondisiLampuPeringatan;
         Airplane.lampuPeringatan = (KondisiSistemKeamanan)kondisiLampuPeringatan;
 
         cout << "\nKondisi Hidrolik:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi hidrolik pada pesawat: ";
         cin >> kondisiHidrolik;
         Airplane.hidrolik = (KondisiSistemKeamanan)kondisiHidrolik;
@@ -211,53 +237,17 @@ void TampilkanInformasiPesawat(vector<Pesawat> &tiapPesawat){
         cout << "Bensin Terisi: " << Airplane.bensinTerisi << " liter\n";
         cout << "Kondisi Pesawat: " << KondisiPesawat << endl;
         
-        if(Airplane.gps == Berfungsi){
-            kondisiGPS = "Berfungsi";
-        } else if (Airplane.gps == TidakBerfungsi){
-            kondisiGPS = "Tidak Berfungsi";
-        } else {
-            kondisiGPS = "Perlu Pemeriksaan";
-        }
-
-        if(Airplane.sistemKebakaran == Berfungsi){
-            kondisiSistemKebakaran = "Berfungsi";
-        } else if(Airplane.sistemKebakaran == TidakBerfungsi){
-            kondisiSistemKebakaran = "Tidak Berfungsi";
-        } else {
-            kondisiSistemKebakaran = "Perlu Pemeriksaan";
-        }
-
-        if (Airplane.layar == Berfungsi){
-            kondisiLayar = "Berfungsi";
-        } else if (Airplane.layar == TidakBerfungsi){
-            kondisiLayar = "Tidak Berfungsi";
-        } else {
-            kondisiLayar = "Perlu Pmeriksaan";
-        }
-
-        if (Airplane.lampuPeringatan == Berfungsi) {
-            kondisiLampuPeringatan = "Berfungsi";
-        } else if (Airplane.lampuPeringatan == TidakBerfungsi) {
-            kondisiLampuPeringatan = "Tidak Berfungsi";
-        } else {
-            kondisiLampuPeringatan = "Perlu Pemeriksaan";
-        }
-
-        if (Airplane.hidrolik == Berfungsi) {
-            kondisiHidrolik = "Berfungsi";
-        } else if (Airplane.hidrolik == TidakBerfungsi) {
-            kondisiHidrolik = "Tidak Berfungsi";
-        } else {
-            kondisiHidrolik = "Perlu Pemeriksaan";
-        }
+        kondisiGPS = keadaan(Airplane.gps);
+        kondisiSistemKebakaran = keadaan(Airplane.sistemKebakaran);
+        kondisiLayar = keadaan(Airplane.layar);
+        kondisiLampuPeringatan = keadaan(Airplane.lampuPeringatan);
+        kondisiHidrolik = keadaan(Airplane.hidrolik);
 
         cout << "Kondisi GPS: " << kondisiGPS << endl;
         cout << "Kondisi Sistem Kebakaran: " << kondisiSistemKebakaran << endl;
         cout << "Kondisi Layar: " << kondisiLayar << endl;
         cout << "Kondisi Lampu Peringatan: " << kondisiLampuPeringatan << endl;
         cout << "Kondisi Hidrolik: " << kondisiHidrolik << endl;
-
-        
     }
 }
 
