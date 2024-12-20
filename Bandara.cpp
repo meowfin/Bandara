@@ -18,15 +18,15 @@ struct Pesawat{
 };
 
 void MasukinJumlahPenumpang(int JumlahPenumpangTiapHari[]){
-    /*  Bagian Arifin
-    Minta user masukin jumlah penumpang, nanti di layar gini:
-    Masukkan jumlah penumpang di bandara untuk setiap hari berikut.
-    Senin: (user masukin)
-    Selasa: (user masukin)
-    ... 
-    */
-}
+    /*  Bagian Arifin */
+    cout << "Masukkan jumlah penumpang di bandara untuk setiap hari berikut." << endl;
+    string namaHari[] = {"Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"};
 
+    for (int i = Senin; i <= Minggu; i++){
+        cout << namaHari[i] << ": ";
+        cin >> JumlahPenumpangTiapHari[i];
+    }
+}
 
 void cekKeadaanTiapHari(int JumlahPenumpangTiapHari[], vector<Pesawat> tiapPesawat){
     /* Bagian Zefanya
