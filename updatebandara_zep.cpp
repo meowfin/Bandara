@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <ctime>
 using namespace std;
+
 enum Hari{
     Senin,
     Selasa,
@@ -25,9 +27,10 @@ enum KondisiSistemKeamanan {
 
 struct Pesawat{
     int jumlahMaksPenumpang;
-    Hari hariTerbang;
+    vector<Hari> hariTerbang;
     int kapasitasBensin;
-    int bensinTerisi;    
+    int bensinTerisi;
+    bool keadaanSemuaSistem; // True berarti aman semua, false berarti ada yang tidak berfungsi/perlu pemeriksaan
     KondisiPesawat kondisi;
     KondisiSistemKeamanan gps;
     KondisiSistemKeamanan sistemKebakaran;
@@ -36,26 +39,95 @@ struct Pesawat{
     KondisiSistemKeamanan hidrolik;
 };
 
-void MasukinJumlahPenumpang(int JumlahPenumpangTiapHari[]) {
+void MasukinJumlahPenumpang(int JumlahPenumpangTiapHari[]){
+    /*  Bagian Arifin
+    Minta user masukin jumlah penumpang tiap hari
+    */
     cout << "Masukkan jumlah penumpang di bandara untuk setiap hari berikut." << endl;
     string namaHari[] = {"Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"};
 
     for (int i = Senin; i <= Minggu; i++) {
         cout << namaHari[i] << ": ";
         cin >> JumlahPenumpangTiapHari[i];
+    }
 }
+
+
+void cekKeadaanTiapHari(int JumlahPenumpangTiapHari[], const vector<Pesawat> tiapPesawat){
+    /* Bagian Zefanya + Dhimas
+    Cek berapa banyak penumpang di hari X dan jumlah maksimum penumpang dari setiap pesawat X
+    Contoh output:
+    Senin: Kebanyakan! 18 orang tidak bisa masuk karena semua pesawat penuh!
+    Selasa: Pas
+    Rabu: Ada 9 kursi yang tersisa.
+    ...
+    */
+   const char* namaHari[7] = {"Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"};
+   int totalKapasitasHarian[7] = {0};
+   for (const Pesawat& Airplane: tiapPesawat) {
+        if(!Airplane.keadaanSemuaSistem){
+            continue;
+        }
+        for(int i = 0; i < 3; i++){
+            totalKapasitasHarian[Airplane.hariTerbang[i]] += Airplane.jumlahMaksPenumpang;
+            }        
+        }
+   cout << " " << endl;
+   cout << "Kondisi Bandara Untuk Minggu ini: " << endl;
+   for (int i = 0; i < 7; i++) {
+        cout << namaHari[i] << ": " ;
+        if (JumlahPenumpangTiapHari[i] == 0 && totalKapasitasHarian[i] == 0){
+            cout << "Tidak ada penumpang & pesawat hari ini!" << endl;
+        } else if (totalKapasitasHarian[i] == 0){
+            cout << "Tidak Ada Pesawat hari ini! Semua penumpang tidak bisa berangkat." << endl;
+        } else if (JumlahPenumpangTiapHari[i] == 0){
+            cout << "Tidak ada penumpang hari ini!" << endl;
+        } else if (totalKapasitasHarian[i] < JumlahPenumpangTiapHari[i]){
+            cout << "Kebanyakan! " << JumlahPenumpangTiapHari[i] - totalKapasitasHarian[i] << " orang tidak bisa masuk karena semua pesawat penuh!" << endl;
+        } else if (totalKapasitasHarian[i] == JumlahPenumpangTiapHari[i]){
+            cout << "Pas!" << endl;
+        } else if (totalKapasitasHarian[i] > JumlahPenumpangTiapHari[i]) {
+            cout << "Ada " << totalKapasitasHarian[i] - JumlahPenumpangTiapHari[i] << " kursi yang tersisa dari semua pesawat yang berfungsi dengan baik." << endl;
+        }
+   }
+}
+
+void outputKeadaan(){
+    cout << "0: Berfungsi\n"
+         << "1: Tidak Berfungsi\n"
+         << "2: Perlu Pemeriksaan\n";
+}
+
+string keadaan(KondisiSistemKeamanan kondisiAirplane){
+    switch (kondisiAirplane){
+        case (Berfungsi):
+            return "Berfungsi";
+            break;
+        case (TidakBerfungsi):
+            return "Tidak Berfungsi";
+            break;
+        case (PerluPemeriksaan):
+            return "Perlu Pemeriksaan";
+            break;
+        default:
+            return "Error";
+            break;
+    }
+}
+
+void delay(int milliseconds) {
+    // Prosedur untuk menghentikan program sejenak
+    clock_t start_time = clock();  
+    while (clock() < start_time + milliseconds * (CLOCKS_PER_SEC / 1000)) {
+    }
 }
 
 void MasukinKeadaanTiapPesawat(vector<Pesawat> *tiapPesawat){
-    /* Bagian Afif
-    Masukin hari terbang untuk setiap pesawat (pake enum yh)
-    */
+    // Bagian Afif + Dhimas, Memasukkan keadaan untuk setiap pesawat di bandara
     int jumlahPesawat;
 
     Pesawat Airplane;
     int i;
-
-    int hari;
 
     int kondisi;
     int kondisiGPS;
@@ -81,65 +153,80 @@ void MasukinKeadaanTiapPesawat(vector<Pesawat> *tiapPesawat){
              << "4: Jumat\n"
              << "5: Sabtu\n"
              << "6: Minggu\n";
-        cout << "Masukkan hari terbang: ";
-        cin >> hari;
-        Airplane.hariTerbang = (Hari)hari;
+        Airplane.hariTerbang.resize(3);
+        for (int j = 0; j < 3; j++) {
+            cout << "Masukkan hari ke-" << j + 1 << " pesawat ini terbang: ";
+            int hari;
+            cin >> hari;
+            bool isDuplicate = false;
+            for (int k = 0; k < j; k++) {
+                if (hari == Airplane.hariTerbang[k]) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (isDuplicate) {
+                cout << "Anda memasukkan hari yang sama dengan sebelumnya! Masukkan ulang hari yang berbeda." << endl;
+                j--;
+            } 
+            else {
+                Airplane.hariTerbang[j] = (Hari)hari;
+            }
+        }   
 
+        cout << endl;
         cout << "\nBerapa kapasitas tangki bensin (liter): ";
         cin >> Airplane.kapasitasBensin;
 
-        cout << "Berapa jumlah bensin yang terisi (liter): ";
+        cout << "Berapa jumlah bensin yang akan diisi (liter): ";
         cin >> Airplane.bensinTerisi;
 
+        cout << "Sedang mengisi bensin"; delay(500);
+        cout << "."; delay(500);
+        cout << "."; delay(500);
+        cout << ".\n"; delay(500);
         if (Airplane.bensinTerisi > Airplane.kapasitasBensin){
-            cout << "Jumlah bensin yang terisi melebihi kapasitas! Tolong sesuaikan!!!";
+            cout << "Jumlah bensin yang terisi melebihi kapasitas!\nBensin yang tersisa akan dikurangi"; delay(2000);
+            cout << "."; delay(1000);
+            cout << "."; delay(1000);
+            cout << ".\n"; delay(1000);
             Airplane.bensinTerisi = Airplane.kapasitasBensin;
         }
+        cout << "Tangki bensin sudah terisi dengan baik!" << endl;
+
 
         cout << "\nKondisi Pesawat\n";
-        cout << "0: Baik\n"
-             << "1: Perlu Perawatan\n"
-             << "2: Rusak\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi pesawat: ";
         cin >> kondisi;
         Airplane.kondisi = (KondisiPesawat)kondisi;
 
         cout << "\nKondisi GPS\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi GPS pesawat: ";
         cin >> kondisiGPS;
         Airplane.gps = (KondisiSistemKeamanan)kondisiGPS;
 
         cout << "\nKondisi Sistem Kebakaran:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi sistem kebakaran pada pesawat: ";
         cin >> kondisiSistemKebakaran;
         Airplane.sistemKebakaran = (KondisiSistemKeamanan)kondisiSistemKebakaran;
 
         cout << "\nKondisi Layar Kemudi Pesawat:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi layar kemudi pesawat: ";
         cin >> kondisiLayar;
         Airplane.layar = (KondisiSistemKeamanan)kondisiLayar;
 
         cout << "\nKondisi Lampu Peringatan:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi lampu peringatan pada pesawat: ";
         cin >> kondisiLampuPeringatan;
         Airplane.lampuPeringatan = (KondisiSistemKeamanan)kondisiLampuPeringatan;
 
         cout << "\nKondisi Hidrolik:\n";
-        cout << "0: Berfungsi\n"
-             << "1: Tidak Berfungsi\n"
-             << "2: Perlu Pemeriksaan\n";
+        outputKeadaan();
         cout << "Bagaimana kondisi hidrolik pada pesawat: ";
         cin >> kondisiHidrolik;
         Airplane.hidrolik = (KondisiSistemKeamanan)kondisiHidrolik;
@@ -151,22 +238,23 @@ void MasukinKeadaanTiapPesawat(vector<Pesawat> *tiapPesawat){
 }
 
 void TampilkanInformasiPesawat(vector<Pesawat> &tiapPesawat){
+    //Menampilkan semua informasi dari setiap pesawat yang ada
     int i;
     string KondisiPesawat;
-    string hariTerbang;
+    string hariTerbang[3];
 
     string kondisiGPS;
     string kondisiSistemKebakaran;
     string kondisiLayar;
     string kondisiLampuPeringatan;
     string kondisiHidrolik;
-
+    
 
     cout << "\nInformasi Pesawat:\n";
 
     for (i = 0; i < tiapPesawat.size(); i++){
         Pesawat& Airplane = tiapPesawat[i];
-
+        
         switch (Airplane.kondisi){
             case Baik: KondisiPesawat = "Baik";
             break;
@@ -175,82 +263,49 @@ void TampilkanInformasiPesawat(vector<Pesawat> &tiapPesawat){
             case Rusak: KondisiPesawat = "Rusak";
             break;
         }
-
-        switch (Airplane.hariTerbang){
-            case Senin: hariTerbang = "Senin";
+        for(int j = 0; j < 3; j++){
+            switch (Airplane.hariTerbang[j]){
+            case Senin: hariTerbang[j] = "Senin";
             break;
-            case Selasa: hariTerbang = "Selasa";
+            case Selasa: hariTerbang[j] = "Selasa";
             break;
-            case Rabu: hariTerbang = "Rabu";
+            case Rabu: hariTerbang[j] = "Rabu";
             break;
-            case Kamis: hariTerbang = "Kamis";
+            case Kamis: hariTerbang[j] = "Kamis";
             break;
-            case Jumat: hariTerbang = "Jumat";
+            case Jumat: hariTerbang[j] = "Jumat";
             break;
-            case Sabtu: hariTerbang = "Sabtu";
+            case Sabtu: hariTerbang[j] = "Sabtu";
             break;
-            case Minggu: hariTerbang = "Minggu";
+            case Minggu: hariTerbang[j] = "Minggu";
             break;
+            }
         }
+        
 
         cout << "\nPesawat " << i+1 << ":\n";
         cout << "Jumlah Maksimal penumpang: " << Airplane.jumlahMaksPenumpang << endl;
-        cout << "Hari Terbang: " << hariTerbang << endl;
+        cout << "Hari Terbang: " << hariTerbang[0] << ", " << hariTerbang[1] << ", " << hariTerbang[2] << endl;
         cout << "Kapasitas Bensin: " << Airplane.kapasitasBensin << " liter\n";
         cout << "Bensin Terisi: " << Airplane.bensinTerisi << " liter\n";
         cout << "Kondisi Pesawat: " << KondisiPesawat << endl;
-
-        if(Airplane.gps == Berfungsi){
-            kondisiGPS = "Berfungsi";
-        } else if (Airplane.gps == TidakBerfungsi){
-            kondisiGPS = "Tidak Berfungsi";
-        } else {
-            kondisiGPS = "Perlu Pemeriksaan";
-        }
-
-        if(Airplane.sistemKebakaran == Berfungsi){
-            kondisiSistemKebakaran = "Berfungsi";
-        } else if(Airplane.sistemKebakaran == TidakBerfungsi){
-            kondisiSistemKebakaran = "Tidak Berfungsi";
-        } else {
-            kondisiSistemKebakaran = "Perlu Pemeriksaan";
-        }
-
-        if (Airplane.layar == Berfungsi){
-            kondisiLayar = "Berfungsi";
-        } else if (Airplane.layar == TidakBerfungsi){
-            kondisiLayar = "Tidak Berfungsi";
-        } else {
-            kondisiLayar = "Perlu Pmeriksaan";
-        }
-
-        if (Airplane.lampuPeringatan == Berfungsi) {
-            kondisiLampuPeringatan = "Berfungsi";
-        } else if (Airplane.lampuPeringatan == TidakBerfungsi) {
-            kondisiLampuPeringatan = "Tidak Berfungsi";
-        } else {
-            kondisiLampuPeringatan = "Perlu Pemeriksaan";
-        }
-
-        if (Airplane.hidrolik == Berfungsi) {
-            kondisiHidrolik = "Berfungsi";
-        } else if (Airplane.hidrolik == TidakBerfungsi) {
-            kondisiHidrolik = "Tidak Berfungsi";
-        } else {
-            kondisiHidrolik = "Perlu Pemeriksaan";
-        }
+        
+        kondisiGPS = keadaan(Airplane.gps);
+        kondisiSistemKebakaran = keadaan(Airplane.sistemKebakaran);
+        kondisiLayar = keadaan(Airplane.layar);
+        kondisiLampuPeringatan = keadaan(Airplane.lampuPeringatan);
+        kondisiHidrolik = keadaan(Airplane.hidrolik);
 
         cout << "Kondisi GPS: " << kondisiGPS << endl;
         cout << "Kondisi Sistem Kebakaran: " << kondisiSistemKebakaran << endl;
         cout << "Kondisi Layar: " << kondisiLayar << endl;
         cout << "Kondisi Lampu Peringatan: " << kondisiLampuPeringatan << endl;
         cout << "Kondisi Hidrolik: " << kondisiHidrolik << endl;
-
-
     }
 }
 
 void CekKeamananPesawat(vector<Pesawat>& tiapPesawat) {
+    // Mengecek keamanan untuk setiap pesawat
     cout << "\nCek Sistem Keamanan Pesawat:\n";
     for (int i = 0; i < tiapPesawat.size(); i++) {
         Pesawat& Airplane = tiapPesawat[i];
@@ -259,37 +314,27 @@ void CekKeamananPesawat(vector<Pesawat>& tiapPesawat) {
         bool kondisiPesawatBaik = true;  
         bool semuaSistemBerfungsi = true; 
 
-
         if (Airplane.kondisi != Baik) {
             kondisiPesawatBaik = false;
         }
-
-
         bool bensinPenuh = (Airplane.bensinTerisi == Airplane.kapasitasBensin);
-
 
         if (Airplane.gps != Berfungsi || Airplane.sistemKebakaran != Berfungsi || Airplane.layar != Berfungsi ||
             Airplane.lampuPeringatan != Berfungsi || Airplane.hidrolik != Berfungsi) {
             semuaSistemBerfungsi = false;
             }
-
-
-
+       
         if (kondisiPesawatBaik && bensinPenuh && semuaSistemBerfungsi) {
             cout << "Pesawat siap terbang!" << endl;
         } else {
-
             if (!bensinPenuh) {
                 cout << "- Tolong isi penuh bensin agar perjalanan lancar!" << endl;
             }
-
             if (!kondisiPesawatBaik) {
                 cout << "- Kondisi pesawat tidak baik! Periksa kondisi pesawat segera.\n";
             }
-
+            
         }
-
-
 
         if (Airplane.gps == TidakBerfungsi) {
             cout << "- GPS tidak berfungsi! Periksa sistem GPS segera.\n";
@@ -306,49 +351,14 @@ void CekKeamananPesawat(vector<Pesawat>& tiapPesawat) {
         if (Airplane.hidrolik == TidakBerfungsi) {
             cout << "- Hidrolik tidak berfungsi! Periksa sistem hidrolik segera.\n";
         }
+       tiapPesawat[i].keadaanSemuaSistem = semuaSistemBerfungsi;
     }
 }
-
-void cekKeadaanTiapHari(int JumlahPenumpangTiapHari[], const vector<Pesawat> tiapPesawat){
-    /* Bagian Zefanya
-    Cek berapa banyak penumpang di hari X dan jumlah maksimum penumpang dari setiap pesawat X
-    Contoh output:
-    Senin: Kebanyakan! 18 orang tidak bisa masuk karena semua pesawat penuh!
-    Selasa: Pas
-    Rabu: Ada 9 kursi yang tersisa.
-    ...
-    */
-   const char* namaHari[7] = {"Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"};
-   int totalKapasitasHarian[7] = {0};
-   for (const Pesawat& Airplane: tiapPesawat)
-   {
-    totalKapasitasHarian[Airplane.hariTerbang] += Airplane.jumlahMaksPenumpang;
-   }
-   cout << " " << endl;
-   cout << "Kondisi Bandara: " << endl;
-   for (int i = 0; i < 7; i++)
-   {
-    cout << namaHari[i] << ": " ;
-    if (JumlahPenumpangTiapHari[i] == 0 && totalKapasitasHarian[i] == 0){
-        cout << "Tidak ada penumpang & pesawat hari ini!" << endl;
-    } else if (totalKapasitasHarian[i] == 0){
-        cout << "Tidak Ada Pesawat Hari ini!" << endl;
-    } else if (JumlahPenumpangTiapHari[i] == 0){
-        cout << "Tidak ada penumpang hari ini!" << endl;
-    } else if (totalKapasitasHarian[i] < JumlahPenumpangTiapHari[i]){
-        cout << "Kebanyakan! " << JumlahPenumpangTiapHari[i] - totalKapasitasHarian[i] << " orang tidak bisa masuk karena semua pesawat penuh!" << endl;
-    } else if (totalKapasitasHarian[i] == JumlahPenumpangTiapHari[i]){
-        cout << "Pas!" << endl;
-    } else if (totalKapasitasHarian[i] > JumlahPenumpangTiapHari[i]) {
-        cout << "Ada " << totalKapasitasHarian[i] - JumlahPenumpangTiapHari[i] << " kursi yang tersisa." << endl;
-    }
-   }
-   }
-
 
 int main(){
     int JumlahPenumpangTiapHari[7];
     vector<Pesawat> tiapPesawat;
+
     MasukinJumlahPenumpang(JumlahPenumpangTiapHari);
     MasukinKeadaanTiapPesawat(&tiapPesawat);
     TampilkanInformasiPesawat(tiapPesawat);
